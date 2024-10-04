@@ -10,12 +10,12 @@ export default function ProfilePostCard({ content, postId }) {
   const BASE_URL =
     "https://683007d0-4082-4b69-804b-4e091b6d5de1-00-mq64xjq353xd.sisko.replit.dev";
 
-  useEffect(() => {
-    fetch(`${BASE_URL}/likes/post/${postId}`)
-      .then((response) => response.json())
-      .then((data) => setLikes(data))
-      .catch((error) => console.error("Error:", error));
-  }, [postId]);
+  // useEffect(() => {
+  //   fetch(`${BASE_URL}/likes/post/${postId}`)
+  //     .then((response) => response.json())
+  //     .then((data) => setLikes(data))
+  //     .catch((error) => console.error("Error:", error));
+  // }, [postId]);
   return (
     <Row
       className="p-3"

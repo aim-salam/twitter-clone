@@ -1,9 +1,10 @@
 import { jwtDecode } from "jwt-decode";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button, Col, Image, Nav, Row, Spinner } from "react-bootstrap";
 import ProfilePostCard from "./ProfilePostCard";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPostsByUser } from "../features/posts/postsSlice";
+import { AuthContext } from "./AuthProvider";
 
 export default function ProfileMidBody() {
   // const [posts, setPosts] = useState([]);
@@ -15,19 +16,24 @@ export default function ProfileMidBody() {
   const dispatch = useDispatch();
   const posts = useSelector((state) => state.posts.posts);
   const loading = useSelector((state) => state.posts.loading);
+  const { currentUser } = useContext(AuthContext);
+
+  useEffect(() => {
+    dispatch(fetchPostsByUser(currentUser.uid));
+  }, [dispatch, currentUser]);
 
   // Fetch posts based on user id
-  const fetchPosts = (userId) => {
-    fetch(
-      `https://e7af6f5a-03fb-4b02-862c-bdcf7c3937ed-00-20ltxhpckpf99.sisko.replit.dev/posts/user/${userId}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        // setPosts(data);
-        console.log(data);
-      })
-      .catch((error) => console.error("Error:", error));
-  };
+  // const fetchPosts = (userId) => {
+  //   fetch(
+  //     `https://e7af6f5a-03fb-4b02-862c-bdcf7c3937ed-00-20ltxhpckpf99.sisko.replit.dev/posts/user/${userId}`
+  //   )
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       // setPosts(data);
+  //       console.log(data);
+  //     })
+  //     .catch((error) => console.error("Error:", error));
+  // };
 
   // useEffect(() => {
   //   const token = localStorage.getItem("authToken");
