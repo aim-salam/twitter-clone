@@ -22,7 +22,7 @@ export const fetchPostsByUser = createAsyncThunk(
   "posts/fetchByUser",
   async (userId) => {
     // const response = await fetch(`${BASE_URL1}/posts/user/${userId}`);
-    // return response.json();
+    // return response.json();x
     try {
       const postsRef = collection(db, `users/${userId}/posts`);
 
