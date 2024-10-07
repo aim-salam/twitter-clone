@@ -1,8 +1,11 @@
 import { Button, Col, Image, Row } from "react-bootstrap";
 import { useEffect, useState } from "react";
-
-export default function ProfilePostCard({ content, postId }) {
+import UpdatePostModal from "./UpdatePostModal";
+export default function ProfilePostCard({ post, postId }) {
+  const { content, imageUrl } = post;
   const [likes, setLikes] = useState([]);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  console.log(imageUrl);
 
   const pic =
     "https://pbs.twimg.com/profile_images/1587405892437221376/h167Jlb2_400x400.jpg";
@@ -16,6 +19,9 @@ export default function ProfilePostCard({ content, postId }) {
   //     .then((data) => setLikes(data))
   //     .catch((error) => console.error("Error:", error));
   // }, [postId]);
+
+  const handleShowUpdateModal = () => setShowUpdateModal(true);
+  const handleCloseUpdateModal = () => setShowUpdateModal(false);
   return (
     <Row
       className="p-3"
@@ -32,6 +38,7 @@ export default function ProfilePostCard({ content, postId }) {
         <strong>Haris</strong>
         <span> @haris.samingan · Apr 16</span>
         <p>{content}</p>
+        <img src={imageUrl} style={{ width: 150 }}></img>
         <div className="d-flex justify-content-between">
           <Button variant="light">
             <i className="bi bi-chat"></i>
@@ -48,6 +55,19 @@ export default function ProfilePostCard({ content, postId }) {
           <Button variant="light">
             <i className="bi bi-upload"></i>
           </Button>
+          <Button variant="light">
+            <i
+              className="bi bi-pencil-square"
+              onClick={handleShowUpdateModal}
+            ></i>
+          </Button>
+
+          <UpdatePostModal
+            show={showUpdateModal}
+            handleClose={handleCloseUpdateModal}
+            postId={postId}
+            originalPostContent={content}
+          />
         </div>
       </Col>
     </Row>

@@ -1,8 +1,16 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
-import { db } from "../../firebase";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { db, storage } from "../../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 // const BASE_URL1 =
 //   "https://e7af6f5a-03fb-4b02-862c-bdcf7c3937ed-00-20ltxhpckpf99.sisko.replit.dev";
 
@@ -34,11 +42,25 @@ export const fetchPostsByUser = createAsyncThunk(
 
 export const savePost = createAsyncThunk(
   "posts/savePost",
-  async ({ userId, postContent }) => {
+  async ({ userId, postContent, file }) => {
+    console.log(userId);
+    console.log(postContent);
+    console.log(file);
     try {
+      let imageUrl = "";
+      if (file !== null) {
+        const imageRef = ref(storage, `posts/${file.name}`);
+        const response = await uploadBytes(imageRef, file);
+        imageUrl = await getDownloadURL(response.ref);
+      }
+
       const postsRef = collection(db, `users/${userId}/posts`);
       const newPostRef = doc(postsRef);
-      await setDoc(newPostRef, { content: postContent, likes: [] });
+      await setDoc(newPostRef, {
+        content: postContent,
+        likes: [],
+        imageUrl,
+      });
       const newPost = await getDoc(newPostRef);
 
       const post = {
@@ -68,6 +90,47 @@ export const savePost = createAsyncThunk(
   //   return response.data;
   // }
 );
+export const updatePost = createAsyncThunk(
+  "posts/updatePost",
+  async ({ userId, postId, newPostContent, newFile }) => {
+    console.log(userId);
+    console.log(postId);
+    console.log(newPostContent);
+    console.log(newFile);
+    try {
+      let newImageUrl = "";
+      if (newFile) {
+        const imageRef = ref(storage, `posts/${newFile.name}`);
+        const response = await uploadBytes(imageRef, newFile);
+        newImageUrl = await getDownloadURL(response.ref);
+      }
+
+      const postRef = doc(db, `users/${userId}/posts/${postId}`);
+
+      const postSnap = await getDoc(postRef);
+      console.log(postSnap.exists());
+      if (postSnap.exists()) {
+        const postData = postSnap.data();
+
+        const updatedData = {
+          ...postData,
+          content: newPostContent || postData.content,
+          imageUrl: newImageUrl || postData.imageUrl,
+        };
+
+        await updateDoc(postRef, updatedData);
+
+        const updatedPost = { id: postId, ...updatedData };
+        return updatedPost;
+      } else {
+        throw new Error("Post does not exist");
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
 
 // Slice
 const postsSlice = createSlice({
@@ -91,6 +154,16 @@ const postsSlice = createSlice({
       })
       .addCase(savePost.fulfilled, (state, action) => {
         state.posts = [action.payload, ...state.posts];
+      })
+      .addCase(updatePost.fulfilled, (state, action) => {
+        const updatedPost = action.payload;
+        // Find and update the post in the state
+        const postIndex = state.posts.findIndex(
+          (post) => post.id === updatedPost.id
+        );
+        if (postIndex !== -1) {
+          state.posts[postIndex] = updatedPost;
+        }
       });
   },
 });

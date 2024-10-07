@@ -115,11 +115,7 @@ export default function ProfileMidBody() {
       )}
       {posts.length > 0 &&
         posts.map((post) => (
-          <ProfilePostCard
-            key={post.id}
-            content={post.content}
-            postId={post.id}
-          />
+          <ProfilePostCard key={post.id} post={post} postId={post.id} />
         ))}
     </Col>
   );
