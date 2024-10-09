@@ -9,8 +9,6 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     return auth.onAuthStateChanged((user) => {
-      console.log("user");
-      console.log(user);
       setCurrentUser(user);
       setLoading(false);
     });
